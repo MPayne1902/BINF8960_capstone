@@ -41,8 +41,8 @@ do
        sample=$(basename $fwd _1.fastq)
        echo "Trimming $sample"
        $TRIMMOMATIC PE data/raw_fastq/${sample}_1.fastq data/raw_fastq/${sample}_2.fastq \
-              data/trimmed_fastq/${sample}_paired.1.fastq data/trimmed_fastq/${sample}_unpaired.1.fastq \
-              data/trimmed_fastq/${sample}_paired.2.fastq data/trimmed_fastq/${sample}_unpaired.2.fastq \
+              data/trimmed_fastq/${sample}_1.paired.fastq data/trimmed_fastq/${sample}_1.unpaired.fastq \
+              data/trimmed_fastq/${sample}_2.paired.fastq data/trimmed_fastq/${sample}_2.unpaired.fastq \
               ILLUMINACLIP:data/raw_fastq/NexteraPE-PE.fa:2:30:10:5:True SLIDINGWINDOW:4:20
 done
 
@@ -67,13 +67,13 @@ gunzip data/genomes/ecoli_rel606.fna.gz
 bwa index data/genomes/ecoli_rel606.fna
 
 # Alignment and variant calling loop
-for fwd in data/trimmed_fastq/*.1.fastq
+for fwd in data/trimmed_fastq/*_1.paired.fastq
 do
-   sample=$(basename $fwd .1.fastq )
+   sample=$(basename $fwd _1.paired.fastq )
 
    #Run alignment
    echo "Aligning $sample"
-   rev=data/trimmed_fastq/${sample}.2.fastq
+   rev=data/trimmed_fastq/${sample}_2.paired.fastq
    bwa mem data/genomes/ecoli_rel606.fna $fwd $rev > results/sam/$sample.sam
 
    #Convert to BAM and sort
