@@ -4,8 +4,8 @@
 for raw in data/raw_fastq/*.fastq
 do
 	sample=$(basename $raw .fastq)
-	wc -l data/raw_fastq/${sample}.fastq
-	#echo $raw_read
+	raw_lines=$(wc -l < data/raw_fastq/${sample}.fastq)
+	echo $raw_lines
 done
 # Count reads that aligned to the genome
     ##Will need to use the "samtools view" command with the "-F 0x4" argument. Explain what this argument does
