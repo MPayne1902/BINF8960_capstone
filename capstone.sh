@@ -1,5 +1,7 @@
 # Capstone Project Script
 
+set -e
+
 # Make directories
 mkdir data docs results
 mkdir data/backup data/trimmed_fastq data/genomes
