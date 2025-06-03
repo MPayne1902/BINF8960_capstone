@@ -48,3 +48,5 @@ do
 	echo "$three variant sites: $site"
 	echo "$three,$site" >> summary_results/variant_site_count.csv # Saves count to summary file
 done
+
+# Now download the "summary_results" folder to your computer for work in R
