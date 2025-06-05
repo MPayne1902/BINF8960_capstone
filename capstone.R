@@ -9,89 +9,71 @@ trimmed = read.csv("summary_results/trimmed_read_count.csv")
 aligned = read.csv("summary_results/aligned_read_count.csv")
 variant = read.csv("summary_results/variant_site_count.csv")
 
+# Make a summary table for paired only 
+## Labels/Value definition
+labels = c("SRR2584863", "SRR2584863", "SRR2584866", "SRR2584866", "SRR2589044", "SRR2589044")
+raw_label = c("Raw","Raw","Raw")
+trimmed_label = c("Trimmed","Trimmed","Trimmed")
+aligned_label = c("Aligned","Aligned","Aligned")
+paired = trimmed[c(1,3,5,7,9,11),]
+main_labels = c(raw$Sample, paired$Sample, aligned$Sample)
+
+## Table creation & column type assignment
+Table1 = as.data.frame(
+  matrix(c(labels, labels, aligned$Sample,
+         raw_label, raw_label, 
+         trimmed_label, trimmed_label, 
+         aligned_label,
+         raw$Read_Count, paired$Read_Count, aligned$Aligned_Reads),
+       nrow = 15, ncol = 3, byrow = FALSE,
+       dimnames = list(main_labels, 
+                      c("Sample", "Count_Type", "Count"))))
+
+Table1$Count = as.integer(Table1$Count)
+
+## Reads added together based on type and sample
+Table2 = Table1 %>%
+  group_by(Count_Type, Sample) %>%
+  summarize(Count = sum(Count, na.rm=TRUE))
+
 # Select for forward and paired samples only from raw & trimmed data
 raw_forward = raw[c(1,3,5),] #Selects for the forward samples only
 paired_forward = trimmed[c(1,5,9),] #Selects for only the paired and forward samples
-raw2 = t(raw_forward)
-write.csv(raw2, file = "summary_results/raw_forward_update.csv", 
-          col.names = FALSE)
-raw_forward_update = read.csv("summary_results/raw_forward_update.csv")
 
-# Create a singular table for the read counts (no variants)
-Labels = c("Raw", "Trimmed", "Aligned")
-#mdat = matrix(c(, raw_forward$Read_Count, 
-#                paired_forward$Read_Count, aligned$Aligned_Reads),
-#              nrow = 3, ncol = 4, byrow = FALSE,
-#               dimnames = list(c("samples", "Raw", "Trimmed", "Aligned), c(1,2,3)))
-mdat
-m3 = matrix(c(aligned$Sample, raw_forward$Read_Count, 
-              paired_forward$Read_Count, aligned$Aligned_Reads), 
-            nrow = 3, ncol = 4, byrow = FALSE,
-               dimnames = list(c(1,2,3),
-                               c("Samples", "Raw", "Trimmed", "Aligned")))
-m4 = t(m3)
-write.csv(m4, file="summary_results/m3.csv", col.names=FALSE)
-m5 = read.csv("summary_results/m3.csv")
-m4
-
-#1=Raw, 2=Trimmed, 3=Aligned
-try = as.data.frame(matrix(c(c(1,2,3), raw_forward$Read_Count, paired_forward$Read_Count, 
-         aligned$Aligned_Reads),
-       nrow = 3, ncol = 4, byrow = TRUE, 
-       dimnames = list(c(1,2,3), c("step", "SRR2584863", "SRR2584866", "SRR2589044")))
-ggplot(try) +
-  
-    geom_line()
-
-aes(x=Labels, y=c(try$SRR2584863, try$SRR2584866, try$SRR2589044), color = aligned$Sample) +
-
-m4 = t(m3)
-m5 = as.data.frame(m4)
-m5
-----------------------
-try2 = as.data.frame(
-  matrix(c(aligned$Sample, c("raw","raw","raw"), raw_forward$Read_Count,
-           aligned$Sample, c("trimmed","trimmed","trimmed"), paired_forward$Read_Count,
-           aligned$Sample, c("aligned","aligned","aligned"), aligned$Aligned_Reads),
+# Make a table with forward and paired only summary data 
+fwd = as.data.frame(
+  matrix(c(aligned$Sample, aligned$Sample, aligned$Sample,
+           raw_label, c("Trimmed","Trimmed","Trimmed"), c("Aligned","Aligned","Aligned"),
+           raw_forward$Read_Count, paired_forward$Read_Count, aligned$Aligned_Reads),
          nrow = 9, ncol = 3, byrow = FALSE,
          dimnames = list(c(1:9), c("Sample", "Count_Type", "Count"))))
 
+# Graph Creation
+## Line graph for summary data
+summary_graph = ggplot(Table2) +
+  aes(x=Count_Type, y=Count, color=Sample, group=Sample) +
+  scale_x_discrete(limits = c("Raw", "Trimmed", "Aligned")) +
+  geom_line(linewidth = 1.5) + theme_classic() +
+  labs(x="", title="Read Count of Samples")
 
+## Line graph for forward and paired only
+forward_graph = ggplot(fwd) +
+  aes(x=Count_Type, y=Count, color=Sample, group=Sample) +
+  scale_x_discrete(limits = c("Raw", "Trimmed", "Aligned")) +
+  geom_line(linewidth = 1.5) + theme_classic() +
+  labs(x="", title="Read Count for Forward & Paired Samples")
 
------------------------
-mdata2 = t(mdat)
-mdata2
-mdat2 = as.data.frame(mdat)
+## Bar graph for variant count
+variant_graph = ggplot(variant) +
+  aes(x=Sample, y=Variant_Sites, color=Sample) +
+  theme_classic() +
+  geom_col(size = 1, fill = "white") + 
+  labs(y="Variant Sites", title="Number of Variant Sites for Each Sample")
 
-test <- matrix(c(1,2,3, 11,12,13), nrow = 2, ncol = 3, byrow = TRUE,
-               dimnames = list(c("row1", "row2"),
-                               c("C.1", "C.2", "C.3")))
-test
-
-# Make a line plot from summary data
-ggplot(m3) +
-  aes(x=)
-
-
-
-
-mydata = raw[grep(sample, raw$Sample),]
-
-SumR = raw %>%
-  mutate(mysample = sub("_*", "", raw$Sample)) %>%
-  group_by(mysample) %>%
-  summarize(Raw_Sum = sum(Read_Count, na.rm = TRUE))
-SumR[c(1,3,5),]
-
-for(mysample in sample){
-  cat("Calculating for", mysample, "\n")
-  mydata = raw[grep(sample, raw$Sample),]
-  mysum = sum(mydata$Read_Count)
-  cat("\tSum of forward and reverse is", mysum, "\n")
-}
-
-mysum = sum
-raw_sum = raw %>%
-  group_by(grep(sample, raw$Sample)) %>%
-  summarize(Sum = sum(Read_Count))
-raw_sum
+## Saving Graphs
+ggsave(summary_graph, file="graphs/summary_line_graph.png", 
+       width = 6, height = 4, units = "in")
+ggsave(forward_graph, file="graphs/forward_line_graph.png", 
+       width = 6, height = 4, units = "in")
+ggsave(variant_graph, file="graphs/variant_bar_graph.png", 
+       width = 6, height = 4, units = "in")
