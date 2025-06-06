@@ -36,6 +36,8 @@ Table2 = Table1 %>%
   group_by(Count_Type, Sample) %>%
   summarize(Count = sum(Count, na.rm=TRUE))
 
+Table2
+
 # Select for forward and paired samples only from raw & trimmed data
 raw_forward = raw[c(1,3,5),] #Selects for the forward samples only
 paired_forward = trimmed[c(1,5,9),] #Selects for only the paired and forward samples
@@ -47,6 +49,8 @@ fwd = as.data.frame(
            raw_forward$Read_Count, paired_forward$Read_Count, aligned$Aligned_Reads),
          nrow = 9, ncol = 3, byrow = FALSE,
          dimnames = list(c(1:9), c("Sample", "Count_Type", "Count"))))
+
+fwd
 
 # Graph Creation
 ## Line graph for summary data
